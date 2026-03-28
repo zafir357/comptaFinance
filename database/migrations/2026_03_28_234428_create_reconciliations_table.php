@@ -15,34 +15,43 @@ return new class extends Migration
      * Lie une transaction bancaire avec une facture OU une dépense.
      * C'est une relation POLYMORPHIQUE!
      * 
+     * IMPORTANT - PAIEMENTS PARTIELS:
+     * Une facture de 1000€ peut être payée en plusieurs fois:
+     *   - Transaction bancaire 1: +500€ → reconciliation 1
+     *   - Transaction bancaire 2: +500€ → reconciliation 2
+     * 
+     * Donc:
+     * - UNE Invoice peut avoir PLUSIEURS reconciliations (morphMany)
+     * - UNE BankTransaction peut avoir UNE SEULE reconciliation (hasOne)
+     * - On stocke l'amount pour tracer combien est alloué
+     * 
      * Relations SQL:
      * - MANY reconciliations belong to ONE bank_transaction = MANY-TO-ONE (belongsTo)
-     * - ONE reconciliation can link to Invoice OR Expense = POLYMORPHIC (morphTo)
+     * - MANY reconciliations can link to ONE Invoice/Expense = POLYMORPHIC (morphTo)
      * 
-     * POLYMORPHIC RELATION - Comment ça marche?
+     * Exemple:
+     * Facture #2026-0001 (1000€) payée en 2 fois:
      * 
-     * Exemple 1:
-     * bank_transaction_id = 1 (virement de +2000€)
-     * reconcilable_type = "App\Models\Invoice"
-     * reconcilable_id = 5 (facture #2026-0001)
-     * → Cette transaction correspond au paiement de la facture #2026-0001
+     * reconciliation #1:
+     *   bank_transaction_id = 5 (+500€)
+     *   reconcilable_type = "App\Models\Invoice"
+     *   reconcilable_id = 1 (facture #2026-0001)
+     *   amount = 50000 (500€ en centimes)
      * 
-     * Exemple 2:
-     * bank_transaction_id = 2 (prélèvement de -150€)
-     * reconcilable_type = "App\Models\Expense"
-     * reconcilable_id = 8 (dépense carburant)
-     * → Cette transaction correspond à la dépense de carburant
-     * 
-     * morphs('reconcilable') crée automatiquement:
-     * - reconcilable_type (string)
-     * - reconcilable_id (bigint)
+     * reconciliation #2:
+     *   bank_transaction_id = 8 (+500€)
+     *   reconcilable_type = "App\Models\Invoice"
+     *   reconcilable_id = 1 (même facture!)
+     *   amount = 50000 (500€ en centimes)
      */
     public function up(): void
     {
         Schema::create('reconciliations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('bank_transaction_id')->constrained()->cascadeOnDelete();
-            $table->morphs('reconcilable');  // Crée reconcilable_type + reconcilable_id
+            $table->morphs('reconcilable');          // Crée reconcilable_type + reconcilable_id
+            $table->integer('amount');               // Montant alloué en centimes (important pour paiements partiels!)
+            $table->text('notes')->nullable();       // Notes sur le rapprochement
             $table->timestamps();
         });
     }

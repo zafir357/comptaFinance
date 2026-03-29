@@ -3,8 +3,8 @@
         {{-- Header --}}
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Support - Tickets</h1>
-                <p class="mt-2 text-sm text-gray-600">Gérez vos demandes de support</p>
+                <h1 class="text-3xl font-bold text-white">Support - Tickets</h1>
+                <p class="mt-2 text-sm text-slate-400">Gérez vos demandes de support</p>
             </div>
             <a href="{{ route('tickets.create') }}" class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -15,7 +15,7 @@
         </div>
 
         {{-- Filters --}}
-        <div class="space-y-4 rounded-lg bg-white p-4 shadow">
+        <div class="space-y-4 rounded-lg bg-slate-900 border border-slate-700 p-4">
             <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <flux:input
                     wire:model.live="search"
@@ -47,11 +47,11 @@
         <div class="space-y-3">
             @forelse ($tickets as $ticket)
                 <flux:card>
-                    <a href="{{ route('tickets.show', $ticket) }}" class="block hover:bg-gray-50">
+                    <a href="{{ route('tickets.show', $ticket) }}" class="block hover:bg-slate-800">
                         <div class="flex items-start justify-between">
                             <div class="flex-1">
-                                <h3 class="text-lg font-medium text-gray-900">{{ $ticket->subject }}</h3>
-                                <p class="mt-1 text-sm text-gray-600">
+                                <h3 class="text-lg font-medium text-white">{{ $ticket->subject }}</h3>
+                                <p class="mt-1 text-sm text-slate-400">
                                     {{ count($ticket->messages) }} message(s) • {{ $ticket->created_at->diffForHumans() }}
                                 </p>
                             </div>
@@ -79,7 +79,7 @@
                 </flux:card>
             @empty
                 <flux:card>
-                    <p class="text-center py-8 text-gray-500">Aucun ticket trouvé</p>
+                    <p class="text-center py-8 text-slate-500">Aucun ticket trouvé</p>
                 </flux:card>
             @endforelse
         </div>

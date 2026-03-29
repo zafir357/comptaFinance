@@ -1,3 +1,10 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    @include('partials.head')
+</head>
+<body class="antialiased">
+
 <div class="min-h-screen bg-gray-50">
     {{-- Sidebar --}}
     <aside class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg overflow-y-auto">
@@ -116,3 +123,7 @@
         {{ $slot }}
     </main>
 </div>
+
+@fluxScripts
+</body>
+</html>

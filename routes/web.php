@@ -22,9 +22,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invoices/create', \App\Livewire\Invoices\InvoiceEditor::class)->name('invoices.create');
     Route::get('/invoices/{invoice}/edit', \App\Livewire\Invoices\InvoiceEditor::class)->name('invoices.edit');
     Route::get('/invoices/{invoice}', function (\App\Models\Invoice $invoice) {
-        $this->authorize('view', $invoice);
+        abort_unless(\Illuminate\Support\Facades\Gate::allows('view', $invoice), 403);
         return view('invoices.show', ['invoice' => $invoice->load('lines', 'customer')]);
     })->name('invoices.show');
+
+    // Mark a sent invoice as paid
+    Route::post('/invoices/{invoice}/mark-paid', function (\App\Models\Invoice $invoice) {
+        abort_unless(auth()->user()->organizations->contains($invoice->organization_id), 403);
+        app(\App\Domain\Billing\Invoices\Actions\MarkInvoicePaidAction::class)->handle($invoice);
+        return redirect()->route('invoices.show', $invoice)->with('success', 'Facture marquée comme payée.');
+    })->name('invoices.mark-paid');
+
+    // Delete a draft invoice
+    Route::delete('/invoices/{invoice}', function (\App\Models\Invoice $invoice) {
+        abort_unless(\Illuminate\Support\Facades\Gate::allows('delete', $invoice), 403);
+        $invoice->delete();
+        return redirect()->route('invoices.index')->with('success', 'Facture supprimée.');
+    })->name('invoices.destroy');
 
     // Placeholder routes for other modules (used in sidebar)
     Route::get('/customers', fn() => view('customers.index'))->name('customers.index');

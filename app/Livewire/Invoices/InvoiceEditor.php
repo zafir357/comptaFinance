@@ -5,11 +5,12 @@ namespace App\Livewire\Invoices;
 use App\Domain\Billing\Invoices\Actions\CreateInvoiceAction;
 use App\Domain\Billing\Invoices\Actions\UpdateInvoiceAction;
 use App\Domain\Billing\Invoices\Data\InvoiceData;
-use App\Http\Requests\Invoices\StoreInvoiceRequest;
 use App\Models\Customer;
 use App\Models\Invoice;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 
+#[Layout('components.layouts.app')]
 class InvoiceEditor extends Component
 {
     public ?Invoice $invoice = null;
@@ -85,6 +86,24 @@ class InvoiceEditor extends Component
 
     public function save()
     {
+        // Basic validation before hitting the action
+        if (! $this->customer_id) {
+            $this->addError('customer_id', 'Veuillez sélectionner un client.');
+            return;
+        }
+
+        if (empty($this->lines)) {
+            $this->addError('lines', 'Veuillez ajouter au moins une ligne.');
+            return;
+        }
+
+        foreach ($this->lines as $i => $line) {
+            if (empty(trim($line['description']))) {
+                $this->addError("lines.{$i}.description", 'Description requise.');
+                return;
+            }
+        }
+
         $data = [
             'customer_id' => $this->customer_id,
             'issue_date' => $this->issue_date,

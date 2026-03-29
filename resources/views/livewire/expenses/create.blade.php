@@ -1,11 +1,11 @@
 <x-app-layout>
     <div class="max-w-2xl mx-auto space-y-6">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Nouvelle note de frais</h1>
-            <p class="mt-2 text-gray-600">Enregistrer une dépense professionnelle</p>
+            <h1 class="text-3xl font-bold text-white">Nouvelle note de frais</h1>
+            <p class="mt-2 text-slate-400">Enregistrer une dépense professionnelle</p>
         </div>
 
-        <flux:card>
+        <flux:card class="bg-slate-900 border border-slate-700">
             <form wire:submit="create" class="space-y-6">
                 {{-- Category --}}
                 <div>
@@ -13,6 +13,7 @@
                         wire:model="category"
                         label="Catégorie"
                         required
+                        class="bg-slate-800 border-slate-600 text-white"
                     >
                         <option value="">Sélectionner une catégorie</option>
                         <option value="travel">Déplacements</option>
@@ -22,7 +23,7 @@
                         <option value="other">Autre</option>
                     </flux:select>
                     @error('category')
-                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                        <span class="text-red-400 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
 
@@ -34,9 +35,10 @@
                         label="Fournisseur/Description"
                         placeholder="Ex: Restaurant, Carburant, etc."
                         required
+                        class="bg-slate-800 border-slate-600 text-white placeholder-slate-500"
                     />
                     @error('supplier')
-                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                        <span class="text-red-400 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
 
@@ -47,9 +49,10 @@
                         type="date"
                         label="Date"
                         required
+                        class="bg-slate-800 border-slate-600 text-white"
                     />
                     @error('date')
-                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                        <span class="text-red-400 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
 
@@ -63,9 +66,10 @@
                             label="Montant HT (€)"
                             placeholder="0.00"
                             required
+                            class="bg-slate-800 border-slate-600 text-white placeholder-slate-500"
                         />
                         @error('amount')
-                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                            <span class="text-red-400 text-sm">{{ $message }}</span>
                         @enderror
                     </div>
                     <div>
@@ -76,28 +80,30 @@
                             label="TVA (€)"
                             placeholder="0.00"
                             required
+                            class="bg-slate-800 border-slate-600 text-white placeholder-slate-500"
                         />
                         @error('vat_amount')
-                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                            <span class="text-red-400 text-sm">{{ $message }}</span>
                         @enderror
                     </div>
                 </div>
 
                 {{-- Receipt Upload --}}
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-slate-300 mb-2">
                         Justificatif (PDF, JPG, PNG - max 5MB)
                     </label>
                     <flux:input
                         wire:model="receipt"
                         type="file"
                         accept=".pdf,.jpg,.jpeg,.png"
+                        class="bg-slate-800 border-slate-600 text-white"
                     />
                     @if ($receipt)
-                        <p class="mt-2 text-sm text-green-600">✓ Fichier sélectionné: {{ $receipt->getClientOriginalName() }}</p>
+                        <p class="mt-2 text-sm text-emerald-400">✓ Fichier sélectionné: {{ $receipt->getClientOriginalName() }}</p>
                     @endif
                     @error('receipt')
-                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                        <span class="text-red-400 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
 
@@ -106,7 +112,7 @@
                     <flux:button type="submit" variant="primary">
                         Créer la note de frais
                     </flux:button>
-                    <a href="{{ route('expenses.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                    <a href="{{ route('expenses.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-600 px-4 py-2 text-slate-300 hover:bg-slate-800 transition">
                         Annuler
                     </a>
                 </div>

@@ -1,6 +1,6 @@
-<x-app-layout>
-    <div class="rounded-lg bg-white p-8 shadow">
-        <h1 class="text-3xl font-bold text-gray-900">Clients</h1>
-        <p class="mt-4 text-gray-600">Module clients - À venir</p>
+<x-layouts.app>
+    <div class="rounded-lg bg-slate-900 border border-slate-700 p-8 shadow-lg">
+        <h1 class="text-3xl font-bold text-white">Clients</h1>
+        <p class="mt-4 text-slate-400">Module clients - À venir</p>
     </div>
-</x-app-layout>
+</x-layouts.app>

@@ -3,10 +3,12 @@
 namespace App\Livewire\Invoices;
 
 use App\Models\Invoice;
+use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Layout('components.layouts.app')]
 class InvoiceList extends Component
 {
     use WithPagination;

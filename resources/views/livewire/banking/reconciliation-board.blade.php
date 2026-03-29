@@ -3,8 +3,8 @@
         {{-- Header --}}
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Rapprochement bancaire</h1>
-                <p class="mt-2 text-sm text-gray-600">Associer transactions bancaires et factures/dépenses</p>
+                <h1 class="text-3xl font-bold text-white">Rapprochement bancaire</h1>
+                <p class="mt-2 text-sm text-slate-400">Associer transactions bancaires et factures/dépenses</p>
             </div>
             <a href="{{ route('banking.import') }}" class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,8 +43,8 @@
                                     :class="'{{ $transaction->amount >= 0 ? 'bg-green-500' : 'bg-red-500' }}'"
                                 ></div>
                                 <div>
-                                    <p class="font-medium text-gray-900">{{ $transaction->description }}</p>
-                                    <p class="text-sm text-gray-600">{{ $transaction->date->format('d/m/Y') }}</p>
+                                    <p class="font-medium text-white">{{ $transaction->description }}</p>
+                                    <p class="text-sm text-slate-400">{{ $transaction->date->format('d/m/Y') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -63,8 +63,8 @@
 
                     {{-- Selection Modal for Unreconciled --}}
                     @if (!$transaction->reconciled && $selectedTransactionId === $transaction->id)
-                        <div class="mt-4 border-t pt-4">
-                            <p class="text-sm font-medium text-gray-700 mb-2">Associer à une facture/dépense:</p>
+                        <div class="mt-4 border-t border-slate-700 pt-4">
+                            <p class="text-sm font-medium text-slate-300 mb-2">Associer à une facture/dépense:</p>
                             <flux:select
                                 wire:model="selectedInvoiceId"
                             >
@@ -108,7 +108,7 @@
                 </flux:card>
             @empty
                 <flux:card>
-                    <p class="text-center py-8 text-gray-500">
+                    <p class="text-center py-8 text-slate-500">
                         @if ($tab === 'unreconciled')
                             Aucune transaction à rapprocher
                         @else

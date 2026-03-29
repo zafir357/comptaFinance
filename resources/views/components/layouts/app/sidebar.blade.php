@@ -12,8 +12,17 @@
             </a>
 
             <flux:navlist variant="outline">
-                <flux:navlist.group heading="Platform" class="grid">
-                    <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>Dashboard</flux:navlist.item>
+                <flux:navlist.group heading="Activité" class="grid">
+                    <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>Tableau de bord</flux:navlist.item>
+                </flux:navlist.group>
+
+                <flux:navlist.group heading="Facturation" class="grid">
+                    <flux:navlist.item icon="document-text" :href="route('invoices.index')" :current="request()->routeIs('invoices.*')" wire:navigate>Factures</flux:navlist.item>
+                    <flux:navlist.item icon="users" :href="route('customers.index')" :current="request()->routeIs('customers.*')" wire:navigate>Clients</flux:navlist.item>
+                </flux:navlist.group>
+
+                <flux:navlist.group heading="Comptabilité" class="grid">
+                    <flux:navlist.item icon="receipt-percent" :href="route('expenses.index')" :current="request()->routeIs('expenses.*')" wire:navigate>Dépenses</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 

@@ -34,51 +34,51 @@
         {{-- TABLE des clients --}}
         @if($this->customers->count() > 0)
             <flux:table>
-                <flux:columns>
-                    <flux:column>Nom</flux:column>
-                    <flux:column>Email</flux:column>
-                    <flux:column>Téléphone</flux:column>
-                    <flux:column>Ville</flux:column>
-                    <flux:column>Créé le</flux:column>
-                    <flux:column></flux:column>
-                </flux:columns>
+                <flux:table.columns>
+                    <flux:table.column>Nom</flux:table.column>
+                    <flux:table.column>Email</flux:table.column>
+                    <flux:table.column>Téléphone</flux:table.column>
+                    <flux:table.column>Ville</flux:table.column>
+                    <flux:table.column>Créé le</flux:table.column>
+                    <flux:table.column></flux:table.column>
+                </flux:table.columns>
                 
-                <flux:rows>
+                <flux:table.rows>
                     @foreach($this->customers as $customer)
-                        <flux:row :key="$customer->id">
-                            <flux:cell>
+                        <flux:table.row wire:key="{{ $customer->id }}">
+                            <flux:table.cell>
                                 <div class="font-medium">{{ $customer->name }}</div>
                                 @if($customer->tax_number)
                                     <div class="text-xs text-gray-500">{{ $customer->tax_number }}</div>
                                 @endif
-                            </flux:cell>
+                            </flux:table.cell>
                             
-                            <flux:cell>{{ $customer->email ?? '—' }}</flux:cell>
+                            <flux:table.cell>{{ $customer->email ?? '—' }}</flux:table.cell>
                             
-                            <flux:cell>{{ $customer->phone ?? '—' }}</flux:cell>
+                            <flux:table.cell>{{ $customer->phone ?? '—' }}</flux:table.cell>
                             
-                            <flux:cell>
+                            <flux:table.cell>
                                 @if($customer->address)
                                     {{ Str::limit($customer->address, 30) }}
                                 @else
                                     —
                                 @endif
-                            </flux:cell>
+                            </flux:table.cell>
                             
-                            <flux:cell>
+                            <flux:table.cell>
                                 <div class="text-sm text-gray-600">
                                     {{ $customer->created_at->format('d/m/Y') }}
                                 </div>
-                            </flux:cell>
+                            </flux:table.cell>
                             
-                            <flux:cell>
+                            <flux:table.cell>
                                 <flux:button size="sm" variant="ghost">
                                     Voir
                                 </flux:button>
-                            </flux:cell>
-                        </flux:row>
+                            </flux:table.cell>
+                        </flux:table.row>
                     @endforeach
-                </flux:rows>
+                </flux:table.rows>
             </flux:table>
             
             {{-- PAGINATION --}}

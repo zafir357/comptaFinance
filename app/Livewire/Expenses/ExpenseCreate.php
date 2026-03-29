@@ -2,17 +2,22 @@
 
 namespace App\Livewire\Expenses;
 
-use Livewire\Component;
 use App\Models\Expense;
 use App\Support\Tenancy\CurrentOrganization;
+use Livewire\Component;
 
 class ExpenseCreate extends Component
 {
     public string $category = '';
+
     public string $supplier = '';
+
     public string $date = '';
+
     public string $amount = '';
+
     public string $vat_amount = '0';
+
     public string $notes = '';
 
     public array $commonCategories = [

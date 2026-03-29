@@ -2,16 +2,17 @@
 
 namespace App\Livewire\Invoices;
 
-use Livewire\Component;
-use Livewire\WithPagination;
 use App\Models\Invoice;
 use App\Support\Tenancy\CurrentOrganization;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class InvoiceList extends Component
 {
     use WithPagination;
 
     public string $search = '';
+
     public string $statusFilter = '';
 
     public function updatedSearch(): void
@@ -31,11 +32,11 @@ class InvoiceList extends Component
             ->where('organization_id', CurrentOrganization::id())
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('number', 'like', '%' . $this->search . '%')
-                      ->orWhereHas('customer', fn($c) => $c->where('name', 'like', '%' . $this->search . '%'));
+                    $q->where('number', 'like', '%'.$this->search.'%')
+                        ->orWhereHas('customer', fn ($c) => $c->where('name', 'like', '%'.$this->search.'%'));
                 });
             })
-            ->when($this->statusFilter, fn($q) => $q->where('status', $this->statusFilter))
+            ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter))
             ->latest()
             ->paginate(15);
     }

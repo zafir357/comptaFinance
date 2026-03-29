@@ -2,11 +2,11 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use App\Models\Invoice;
-use App\Models\Expense;
 use App\Models\Customer;
+use App\Models\Expense;
+use App\Models\Invoice;
 use App\Support\Tenancy\CurrentOrganization;
+use Livewire\Component;
 
 class Dashboard extends Component
 {
@@ -34,10 +34,10 @@ class Dashboard extends Component
         $totalPaid = (clone $invoices)->where('status', 'paid')->sum('total');
         $totalPending = (clone $invoices)->whereIn('status', ['draft', 'sent'])->sum('total');
         $overdueCount = (clone $invoices)->where('status', 'overdue')
-            ->orWhere(function($q) use ($orgId) {
+            ->orWhere(function ($q) use ($orgId) {
                 $q->where('organization_id', $orgId)
-                  ->where('status', 'sent')
-                  ->where('due_date', '<', now());
+                    ->where('status', 'sent')
+                    ->where('due_date', '<', now());
             })->count();
 
         return [
@@ -55,7 +55,9 @@ class Dashboard extends Component
     public function getRecentInvoicesProperty()
     {
         $orgId = CurrentOrganization::id();
-        if (! $orgId) return collect();
+        if (! $orgId) {
+            return collect();
+        }
 
         return Invoice::with('customer')
             ->where('organization_id', $orgId)
@@ -67,7 +69,9 @@ class Dashboard extends Component
     public function getRecentExpensesProperty()
     {
         $orgId = CurrentOrganization::id();
-        if (! $orgId) return collect();
+        if (! $orgId) {
+            return collect();
+        }
 
         return Expense::where('organization_id', $orgId)
             ->latest('date')

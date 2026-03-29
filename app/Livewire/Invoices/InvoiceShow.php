@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Invoices;
 
-use Livewire\Component;
 use App\Models\Invoice;
 use App\Support\Tenancy\CurrentOrganization;
+use Livewire\Component;
 
 class InvoiceShow extends Component
 {

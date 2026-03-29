@@ -11,7 +11,7 @@ class InvoiceNumberingService
         $year = date('Y');
 
         $lastInvoice = Invoice::where('organization_id', $organizationId)
-            ->where('number', 'like', $year . '-%')
+            ->where('number', 'like', $year.'-%')
             ->orderBy('number', 'desc')
             ->first();
 
@@ -22,6 +22,6 @@ class InvoiceNumberingService
             $newNumber = 1;
         }
 
-        return $year . '-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+        return $year.'-'.str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
 }

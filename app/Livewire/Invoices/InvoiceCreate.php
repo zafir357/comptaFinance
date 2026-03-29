@@ -2,18 +2,22 @@
 
 namespace App\Livewire\Invoices;
 
-use Livewire\Component;
-use App\Models\Customer;
 use App\Domain\Billing\Invoices\Actions\CreateInvoiceAction;
 use App\Domain\Billing\Invoices\Data\InvoiceData;
+use App\Models\Customer;
 use App\Support\Tenancy\CurrentOrganization;
+use Livewire\Component;
 
 class InvoiceCreate extends Component
 {
     public int|string $customer_id = '';
+
     public string $issue_date = '';
+
     public string $due_date = '';
+
     public string $notes = '';
+
     public array $lines = [
         ['description' => '', 'quantity' => 1, 'unit_price' => '', 'vat_rate' => 20],
     ];
@@ -53,6 +57,7 @@ class InvoiceCreate extends Component
             $price = (float) ($line['unit_price'] ?? 0);
             $total += $qty * $price;
         }
+
         return $total;
     }
 
@@ -66,6 +71,7 @@ class InvoiceCreate extends Component
             $lineTotal = $qty * $price;
             $total += $lineTotal + ($lineTotal * $vat / 100);
         }
+
         return $total;
     }
 
@@ -104,6 +110,7 @@ class InvoiceCreate extends Component
         // Convert unit_price from euros to centimes
         $lines = array_map(function ($line) {
             $line['unit_price'] = (int) round((float) $line['unit_price'] * 100);
+
             return $line;
         }, $validated['lines']);
 
@@ -118,7 +125,7 @@ class InvoiceCreate extends Component
         $action = app(CreateInvoiceAction::class);
         $invoice = $action->execute($data, CurrentOrganization::id());
 
-        session()->flash('success', 'Facture ' . $invoice->number . ' créée avec succès!');
+        session()->flash('success', 'Facture '.$invoice->number.' créée avec succès!');
         $this->redirect(route('invoices.index'), navigate: true);
     }
 

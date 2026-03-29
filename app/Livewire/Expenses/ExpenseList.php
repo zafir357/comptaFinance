@@ -2,16 +2,17 @@
 
 namespace App\Livewire\Expenses;
 
-use Livewire\Component;
-use Livewire\WithPagination;
 use App\Models\Expense;
 use App\Support\Tenancy\CurrentOrganization;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class ExpenseList extends Component
 {
     use WithPagination;
 
     public string $search = '';
+
     public string $categoryFilter = '';
 
     public function updatedSearch(): void
@@ -28,11 +29,11 @@ class ExpenseList extends Component
     {
         return Expense::query()
             ->where('organization_id', CurrentOrganization::id())
-            ->when($this->search, fn($q) => $q->where(function ($q) {
-                $q->where('supplier', 'like', '%' . $this->search . '%')
-                  ->orWhere('category', 'like', '%' . $this->search . '%');
+            ->when($this->search, fn ($q) => $q->where(function ($q) {
+                $q->where('supplier', 'like', '%'.$this->search.'%')
+                    ->orWhere('category', 'like', '%'.$this->search.'%');
             }))
-            ->when($this->categoryFilter, fn($q) => $q->where('category', $this->categoryFilter))
+            ->when($this->categoryFilter, fn ($q) => $q->where('category', $this->categoryFilter))
             ->latest('date')
             ->paginate(15);
     }

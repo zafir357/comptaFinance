@@ -2,6 +2,7 @@
 
 namespace App\Domain\Banking\Actions;
 
+use App\Domain\Banking\Data\ReconciliationData;
 use App\Models\BankTransaction;
 use App\Models\Reconciliation;
 use Illuminate\Database\Eloquent\Model;
@@ -22,11 +23,8 @@ use Illuminate\Database\Eloquent\Model;
  *
  * Usage:
  *   $action = app(ReconcileTransactionAction::class);
- *   $reconciliation = $action->handle(
- *       transaction: $bankTransaction,
- *       reconcilable: $invoice,
- *       amount: 50000  // €500 in cents (or null to use full transaction amount)
- *   );
+ *   $data = ReconciliationData::fromArray($request->validated());
+ *   $reconciliation = $action->handle($bankTransaction, $data);
  */
 class ReconcileTransactionAction
 {
@@ -34,28 +32,29 @@ class ReconcileTransactionAction
      * Handle the reconciliation
      *
      * @param BankTransaction $transaction
-     * @param Model $reconcilable Invoice or Expense model
-     * @param int|null $amount in cents (uses transaction amount if null)
+     * @param ReconciliationData $data
      * @return Reconciliation
      * @throws \InvalidArgumentException
      */
-    public function handle(
-        BankTransaction $transaction,
-        Model $reconcilable,
-        ?int $amount = null,
-    ): Reconciliation {
-        // Validate reconcilable model
-        $allowedModels = ['App\Models\Invoice', 'App\Models\Expense'];
-        $reconcilableClass = get_class($reconcilable);
+    public function handle(BankTransaction $transaction, ReconciliationData $data): Reconciliation
+    {
+        // Validate data
+        if (!$data->isValidType()) {
+            throw new \InvalidArgumentException("Invalid reconcilable type: {$data->reconcilable_type}");
+        }
 
-        if (!in_array($reconcilableClass, $allowedModels)) {
+        // Get the reconcilable model class
+        $reconcilableClass = $data->getReconcilableClass();
+        $reconcilable = $reconcilableClass::find($data->reconcilable_id);
+
+        if (!$reconcilable) {
             throw new \InvalidArgumentException(
-                "Reconcilable must be an Invoice or Expense, got {$reconcilableClass}"
+                "{$data->reconcilable_type} with ID {$data->reconcilable_id} not found"
             );
         }
 
         // Use full transaction amount if not specified
-        $reconciliationAmount = $amount ?? abs($transaction->amount);
+        $reconciliationAmount = $data->amount ?? abs($transaction->amount);
 
         // Validate amount
         if ($reconciliationAmount <= 0) {

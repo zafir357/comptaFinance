@@ -22,8 +22,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
  */
 class BankTransactionRepository extends BaseRepository
 {
-    protected Model $model;
-
     protected function getModel(): Model
     {
         return app(BankTransaction::class);
@@ -43,6 +41,14 @@ class BankTransactionRepository extends BaseRepository
     public function unreconciledPaginated(int $perPage = 15): LengthAwarePaginator
     {
         return $this->unreconciled()->paginate($perPage);
+    }
+
+    /**
+     * Check if transaction exists by external_id
+     */
+    public function existsByExternalId(string $externalId): bool
+    {
+        return $this->findByExternalId($externalId) !== null;
     }
 
     /**

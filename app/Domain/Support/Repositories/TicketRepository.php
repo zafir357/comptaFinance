@@ -4,6 +4,7 @@ namespace App\Domain\Support\Repositories;
 
 use App\Models\Ticket;
 use App\Repositories\BaseRepository;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * REPOSITORY: TicketRepository
@@ -20,9 +21,7 @@ use App\Repositories\BaseRepository;
  */
 class TicketRepository extends BaseRepository
 {
-    protected Ticket $model;
-
-    protected function getModel(): Ticket
+    protected function getModel(): Model
     {
         return new Ticket();
     }

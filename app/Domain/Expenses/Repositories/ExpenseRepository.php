@@ -4,6 +4,7 @@ namespace App\Domain\Expenses\Repositories;
 
 use App\Models\Expense;
 use App\Repositories\BaseRepository;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * REPOSITORY: ExpenseRepository
@@ -20,9 +21,7 @@ use App\Repositories\BaseRepository;
  */
 class ExpenseRepository extends BaseRepository
 {
-    protected Expense $model;
-
-    protected function getModel(): Expense
+    protected function getModel(): Model
     {
         return new Expense();
     }

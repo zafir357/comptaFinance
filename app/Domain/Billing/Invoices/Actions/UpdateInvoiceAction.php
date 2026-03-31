@@ -3,6 +3,7 @@
 namespace App\Domain\Billing\Invoices\Actions;
 
 use App\Domain\Billing\Invoices\Data\InvoiceData;
+use App\Domain\Billing\Invoices\Repositories\InvoiceRepository;
 use App\Models\Invoice;
 use App\Models\InvoiceLine;
 
@@ -14,6 +15,10 @@ use App\Models\InvoiceLine;
  */
 class UpdateInvoiceAction
 {
+    public function __construct(
+        private InvoiceRepository $invoiceRepository,
+    ) {}
+
     public function handle(Invoice $invoice, InvoiceData $data): Invoice
     {
         // Only allow updates on draft invoices
@@ -24,8 +29,8 @@ class UpdateInvoiceAction
         // Calculate totals
         $totals = $data->calculateTotals();
 
-        // Update invoice
-        $invoice->update([
+        // Update invoice via repository
+        $invoice = $this->invoiceRepository->update($invoice, [
             'customer_id' => $data->customer_id,
             'issue_date' => $data->issue_date,
             'due_date' => $data->due_date,

@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-layouts.app>
     <div class="max-w-4xl mx-auto space-y-6">
         {{-- Header --}}
         <div class="flex items-center justify-between">
@@ -88,4 +88,4 @@
             </flux:card>
         @endif
     </div>
-</x-app-layout>
+</x-layouts.app>

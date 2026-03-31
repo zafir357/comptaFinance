@@ -2,10 +2,12 @@
 
 namespace App\Livewire\Expenses;
 
-use App\Models\Expense;
+use App\Domain\Expenses\Repositories\ExpenseRepository;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Layout('components.layouts.app')]
 class ExpenseList extends Component
 {
     use WithPagination;
@@ -21,7 +23,9 @@ class ExpenseList extends Component
 
     public function render()
     {
-        $query = Expense::query();
+        // Resolve repository in method, not constructor!
+        $expenseRepository = app(ExpenseRepository::class);
+        $query = $expenseRepository->query();
 
         if ($this->search) {
             $query->where('supplier', 'like', "%{$this->search}%");

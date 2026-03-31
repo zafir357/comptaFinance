@@ -4,8 +4,8 @@ namespace App\Domain\Support\Actions;
 
 use App\Domain\Support\Data\TicketData;
 use App\Domain\Support\Events\TicketCreated;
+use App\Domain\Support\Repositories\TicketRepository;
 use App\Models\Ticket;
-use App\Support\Tenancy\CurrentOrganization;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
  * Single-responsibility: handles ticket creation workflow.
  *
  * IMPORTANT: This is where we ensure:
- * - Organization is set (automatic via tenancy)
+ * - Organization is set (automatic via repository)
  * - User is set from authenticated user
  * - Status is always 'open' for new tickets
  * - TicketCreated event is dispatched
@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Auth;
 class CreateTicketAction
 {
     public function __construct(
-        private CurrentOrganization $tenancy,
+        private TicketRepository $ticketRepository,
     ) {}
 
     /**
@@ -53,9 +53,8 @@ class CreateTicketAction
             ));
         }
 
-        // 2. Create ticket
-        $ticket = Ticket::create([
-            'organization_id' => $this->tenancy->id(),
+        // 2. Create ticket via repository
+        $ticket = $this->ticketRepository->create([
             'user_id' => Auth::id(),
             'subject' => $data->subject,
             'status' => 'open',  // Always start with open

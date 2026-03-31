@@ -2,11 +2,15 @@
 
 namespace App\Services;
 
+use App\Domain\Banking\Repositories\BankTransactionRepository;
+use App\Domain\Billing\Invoices\Repositories\InvoiceRepository;
+use App\Domain\Expenses\Repositories\ExpenseRepository;
+use App\Domain\Support\Repositories\TicketRepository;
 use App\Models\Customer;
-use App\Models\Invoice;
 use App\Support\Tenancy\CurrentOrganization;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * SERVICE: DashboardStatsService
@@ -29,6 +33,10 @@ class DashboardStatsService
 
     public function __construct(
         private CurrentOrganization $tenancy,
+        private InvoiceRepository $invoiceRepository,
+        private ExpenseRepository $expenseRepository,
+        private BankTransactionRepository $transactionRepository,
+        private TicketRepository $ticketRepository,
     ) {}
 
     /**
@@ -56,15 +64,15 @@ class DashboardStatsService
 
         $cacheKey = "dashboard_stats:{$orgId}";
 
-        return Cache::remember($cacheKey, now()->addMinutes(self::CACHE_TTL_MINUTES), function () use ($orgId) {
+        return Cache::remember($cacheKey, now()->addMinutes(self::CACHE_TTL_MINUTES), function () {
             return [
-                'totalInvoicedThisMonth' => $this->getTotalInvoicedThisMonth($orgId),
-                'totalExpensesThisMonth' => $this->getTotalExpensesThisMonth($orgId),
-                'outstandingInvoices' => $this->getOutstandingInvoices($orgId),
-                'unreconciledTransactions' => $this->getUnreconciledTransactions($orgId),
-                'openTickets' => $this->getOpenTickets($orgId),
-                'recentInvoices' => $this->getRecentInvoices($orgId),
-                'topCustomers' => $this->getTopCustomers($orgId),
+                'totalInvoicedThisMonth' => $this->getTotalInvoicedThisMonth(),
+                'totalExpensesThisMonth' => $this->getTotalExpensesThisMonth(),
+                'outstandingInvoices' => $this->getOutstandingInvoices(),
+                'unreconciledTransactions' => $this->getUnreconciledTransactions(),
+                'openTickets' => $this->getOpenTickets(),
+                'recentInvoices' => $this->getRecentInvoices(),
+                'topCustomers' => $this->getTopCustomers(),
             ];
         });
     }
@@ -88,28 +96,33 @@ class DashboardStatsService
      * Get total invoiced amount for the current month.
      * Only includes invoices with status 'sent' or 'paid'.
      *
-     * @param int $orgId
      * @return int Amount in cents
      */
-    private function getTotalInvoicedThisMonth(int $orgId): int
+    private function getTotalInvoicedThisMonth(): int
     {
-        return (int) Invoice::where('organization_id', $orgId)
-            ->whereIn('status', ['sent', 'paid'])
+        $sent = $this->invoiceRepository->query()
+            ->where('status', 'sent')
             ->whereYear('issue_date', now()->year)
             ->whereMonth('issue_date', now()->month)
             ->sum('total');
+
+        $paid = $this->invoiceRepository->query()
+            ->where('status', 'paid')
+            ->whereYear('issue_date', now()->year)
+            ->whereMonth('issue_date', now()->month)
+            ->sum('total');
+
+        return (int) ($sent + $paid);
     }
 
     /**
      * Get total expenses for the current month.
      *
-     * @param int $orgId
      * @return int Amount in cents (amount + vat_amount)
      */
-    private function getTotalExpensesThisMonth(int $orgId): int
+    private function getTotalExpensesThisMonth(): int
     {
-        return (int) \DB::table('expenses')
-            ->where('organization_id', $orgId)
+        return (int) $this->expenseRepository->query()
             ->whereYear('date', now()->year)
             ->whereMonth('date', now()->month)
             ->selectRaw('SUM(amount + vat_amount) as total')
@@ -119,13 +132,12 @@ class DashboardStatsService
     /**
      * Get sum of all outstanding (unpaid) invoices.
      *
-     * @param int $orgId
      * @return int Amount in cents
      */
-    private function getOutstandingInvoices(int $orgId): int
+    private function getOutstandingInvoices(): int
     {
         // Only invoices with status 'sent' (not yet paid)
-        return (int) Invoice::where('organization_id', $orgId)
+        return (int) $this->invoiceRepository->query()
             ->where('status', 'sent')
             ->sum('total');
     }
@@ -133,27 +145,22 @@ class DashboardStatsService
     /**
      * Get count of unreconciled bank transactions.
      *
-     * @param int $orgId
      * @return int
      */
-    private function getUnreconciledTransactions(int $orgId): int
+    private function getUnreconciledTransactions(): int
     {
-        return (int) \DB::table('bank_transactions')
-            ->where('organization_id', $orgId)
-            ->where('reconciled', false)
+        return (int) $this->transactionRepository->unreconciled()
             ->count();
     }
 
     /**
      * Get count of open support tickets.
      *
-     * @param int $orgId
      * @return int
      */
-    private function getOpenTickets(int $orgId): int
+    private function getOpenTickets(): int
     {
-        return (int) \DB::table('tickets')
-            ->where('organization_id', $orgId)
+        return (int) $this->ticketRepository->query()
             ->where('status', 'open')
             ->count();
     }
@@ -162,28 +169,22 @@ class DashboardStatsService
      * Get 5 most recent invoices with eager-loaded relations.
      * Ordered by issue_date descending.
      *
-     * @param int $orgId
      * @return Collection
      */
-    private function getRecentInvoices(int $orgId): Collection
+    private function getRecentInvoices(): Collection
     {
-        return Invoice::where('organization_id', $orgId)
-            ->with(['customer', 'lines'])
-            ->orderBy('issue_date', 'desc')
-            ->limit(5)
-            ->get();
+        return $this->invoiceRepository->recent(5)->get();
     }
 
     /**
      * Get top customers by invoice count.
      * Returns up to 5 customers with most invoices.
      *
-     * @param int $orgId
      * @return Collection Customers with 'invoice_count' attribute
      */
-    private function getTopCustomers(int $orgId): Collection
+    private function getTopCustomers(): Collection
     {
-        return Customer::where('organization_id', $orgId)
+        return Customer::where('organization_id', $this->tenancy->id())
             ->withCount('invoices')
             ->orderByDesc('invoices_count')
             ->limit(5)

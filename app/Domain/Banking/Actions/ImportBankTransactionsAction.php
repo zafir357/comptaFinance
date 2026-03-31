@@ -3,8 +3,7 @@
 namespace App\Domain\Banking\Actions;
 
 use App\Domain\Banking\Data\BankTransactionData;
-use App\Models\BankTransaction;
-use App\Support\Tenancy\CurrentOrganization;
+use App\Domain\Banking\Repositories\BankTransactionRepository;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -18,7 +17,7 @@ use Illuminate\Database\Eloquent\Collection;
  * - Safe to run the same CSV multiple times without creating duplicates
  *
  * MULTI-TENANCY:
- * - Automatically scopes to current organization
+ * - Automatically scopes to current organization via repository
  * - Each org has independent external_id namespace
  *
  * Usage:
@@ -32,7 +31,7 @@ use Illuminate\Database\Eloquent\Collection;
 class ImportBankTransactionsAction
 {
     public function __construct(
-        private CurrentOrganization $currentOrganization,
+        private BankTransactionRepository $transactionRepository,
     ) {}
 
     /**
@@ -43,23 +42,16 @@ class ImportBankTransactionsAction
      */
     public function handle(array $transactions): Collection
     {
-        $orgId = $this->currentOrganization->id();
         $created = [];
 
         foreach ($transactions as $transactionData) {
             // Check if this transaction already exists (idempotency)
-            $existing = BankTransaction::where('organization_id', $orgId)
-                ->where('external_id', $transactionData->external_id)
-                ->first();
-
-            if ($existing) {
-                // Already imported, skip
+            if ($this->transactionRepository->existsByExternalId($transactionData->external_id)) {
                 continue;
             }
 
-            // Create new transaction
-            $bankTransaction = BankTransaction::create([
-                'organization_id' => $orgId,
+            // Create new transaction via repository
+            $bankTransaction = $this->transactionRepository->create([
                 'date' => $transactionData->date,
                 'description' => $transactionData->description,
                 'amount' => $transactionData->amount,

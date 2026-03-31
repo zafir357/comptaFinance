@@ -5,9 +5,11 @@ namespace App\Livewire\Expenses;
 use App\Domain\Expenses\Actions\CreateExpenseAction;
 use App\Domain\Expenses\Data\ExpenseData;
 use App\Models\Expense;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
+#[Layout('components.layouts.app')]
 class ExpenseCreate extends Component
 {
     use WithFileUploads;
@@ -43,14 +45,15 @@ class ExpenseCreate extends Component
             $receiptPath = $this->receipt->store('expenses', 'private');
         }
 
-        $data = new ExpenseData(
-            category: $this->category,
-            supplier: $this->supplier,
-            amount: (int) ($this->amount * 100),
-            vat_amount: (int) ($this->vat_amount * 100),
-            date: $this->date,
-            receipt_path: $receiptPath,
-        );
+        // Create DTO from form data using fromArray()
+        $data = ExpenseData::fromArray([
+            'category' => $this->category,
+            'supplier' => $this->supplier,
+            'amount' => $this->amount,
+            'vat_amount' => $this->vat_amount,
+            'date' => $this->date,
+            'receipt_path' => $receiptPath,
+        ]);
 
         app(CreateExpenseAction::class)->handle($data);
 

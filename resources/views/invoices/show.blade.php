@@ -12,6 +12,11 @@
                 </p>
             </div>
             <div class="flex flex-wrap gap-2">
+                {{-- Download PDF button (for all invoices) --}}
+                <a href="{{ route('invoices.download-pdf', $invoice) }}" target="_blank">
+                    <flux:button icon="document-arrow-down" variant="primary">Télécharger PDF</flux:button>
+                </a>
+
                 {{-- Mark as paid — only for sent invoices --}}
                 @if ($invoice->status === 'sent')
                     <form method="POST" action="{{ route('invoices.mark-paid', $invoice) }}" class="inline">

@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-layouts.app>
     <div class="max-w-3xl mx-auto space-y-6">
         <div>
             <h1 class="text-3xl font-bold text-white">Importer transactions bancaires</h1>
@@ -98,4 +98,4 @@
             </p>
         </flux:card>
     </div>
-</x-app-layout>
+</x-layouts.app>

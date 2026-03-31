@@ -24,10 +24,11 @@ class TicketThread extends Component
             'reply' => 'required|string|min:5|max:5000',
         ]);
 
-        $data = new TicketMessageData(
-            body: $this->reply,
-            is_internal: $this->internal,
-        );
+        // Create DTO using fromArray()
+        $data = TicketMessageData::fromArray([
+            'body' => $this->reply,
+            'is_internal' => $this->internal,
+        ]);
 
         app(ReplyToTicketAction::class)->handle($this->ticket, $data);
 

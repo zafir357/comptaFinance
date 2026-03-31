@@ -4,6 +4,7 @@ namespace App\Domain\Billing\Invoices\Repositories;
 
 use App\Models\Invoice;
 use App\Repositories\BaseRepository;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * REPOSITORY: InvoiceRepository
@@ -19,9 +20,7 @@ use App\Repositories\BaseRepository;
  */
 class InvoiceRepository extends BaseRepository
 {
-    protected Invoice $model;
-
-    protected function getModel(): Invoice
+    protected function getModel(): Model
     {
         return new Invoice();
     }

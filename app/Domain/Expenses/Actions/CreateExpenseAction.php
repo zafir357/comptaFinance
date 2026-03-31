@@ -5,8 +5,8 @@ namespace App\Domain\Expenses\Actions;
 use App\Domain\Expenses\Data\ExpenseData;
 use App\Domain\Expenses\Events\ExpenseCreated;
 use App\Domain\Expenses\Jobs\ProcessReceiptJob;
+use App\Domain\Expenses\Repositories\ExpenseRepository;
 use App\Models\Expense;
-use App\Support\Tenancy\CurrentOrganization;
 
 /**
  * ACTION: CreateExpenseAction
@@ -15,7 +15,7 @@ use App\Support\Tenancy\CurrentOrganization;
  * Single-responsibility: handles expense creation workflow.
  *
  * IMPORTANT: This is where we ensure:
- * - Organization is set (automatic via trait)
+ * - Organization is set (automatic via repository)
  * - Receipt file path is stored
  * - Event is dispatched
  * - Receipt processing job is queued if needed
@@ -27,14 +27,13 @@ use App\Support\Tenancy\CurrentOrganization;
 class CreateExpenseAction
 {
     public function __construct(
-        private CurrentOrganization $tenancy,
+        private ExpenseRepository $expenseRepository,
     ) {}
 
     public function handle(ExpenseData $data): Expense
     {
-        // Create expense
-        $expense = Expense::create([
-            'organization_id' => $this->tenancy->id(),
+        // Create expense via repository
+        $expense = $this->expenseRepository->create([
             'category' => $data->category,
             'supplier' => $data->supplier,
             'amount' => $data->amount,

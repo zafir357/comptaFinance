@@ -94,6 +94,9 @@
                                 <a href="{{ route('invoices.show', $invoice) }}" class="text-slate-400 hover:text-slate-300 text-sm">
                                     Voir
                                 </a>
+                                <a href="{{ route('invoices.download-pdf', $invoice) }}" target="_blank" class="text-slate-400 hover:text-slate-300 text-sm" title="Télécharger PDF">
+                                    PDF
+                                </a>
                             </div>
                         </flux:table.cell>
                     </flux:table.row>

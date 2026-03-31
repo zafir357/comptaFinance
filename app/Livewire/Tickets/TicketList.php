@@ -2,10 +2,12 @@
 
 namespace App\Livewire\Tickets;
 
-use App\Models\Ticket;
+use App\Domain\Support\Repositories\TicketRepository;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Layout('components.layouts.app')]
 class TicketList extends Component
 {
     use WithPagination;
@@ -21,7 +23,9 @@ class TicketList extends Component
 
     public function render()
     {
-        $query = Ticket::query();
+        // Resolve repository in method, not constructor!
+        $ticketRepository = app(TicketRepository::class);
+        $query = $ticketRepository->query();
 
         if ($this->search) {
             $query->where('subject', 'like', "%{$this->search}%");

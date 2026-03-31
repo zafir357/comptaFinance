@@ -3,10 +3,10 @@
 namespace App\Domain\Billing\Invoices\Actions;
 
 use App\Domain\Billing\Invoices\Data\InvoiceData;
+use App\Domain\Billing\Invoices\Repositories\InvoiceRepository;
 use App\Domain\Billing\Invoices\Services\InvoiceNumberingService;
 use App\Models\Invoice;
 use App\Models\InvoiceLine;
-use App\Support\Tenancy\CurrentOrganization;
 
 /**
  * ACTION: CreateInvoiceAction
@@ -15,7 +15,7 @@ use App\Support\Tenancy\CurrentOrganization;
  * Single-responsibility: handles invoice creation workflow.
  *
  * IMPORTANT: This is where we ensure:
- * - Organization is set (automatic via trait)
+ * - Organization is set (automatic via repository)
  * - Invoice number is sequential
  * - Totals are calculated correctly
  * - All line items are created
@@ -28,7 +28,7 @@ class CreateInvoiceAction
 {
     public function __construct(
         private InvoiceNumberingService $numberingService,
-        private CurrentOrganization $tenancy,
+        private InvoiceRepository $invoiceRepository,
     ) {}
 
     public function handle(InvoiceData $data): Invoice
@@ -39,9 +39,8 @@ class CreateInvoiceAction
         // 2. Get next invoice number
         $invoiceNumber = $this->numberingService->nextNumber();
 
-        // 3. Create invoice
-        $invoice = Invoice::create([
-            'organization_id' => $this->tenancy->id(),
+        // 3. Create invoice via repository
+        $invoice = $this->invoiceRepository->create([
             'customer_id' => $data->customer_id,
             'number' => $invoiceNumber,
             'status' => $data->status,

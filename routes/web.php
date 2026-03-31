@@ -26,6 +26,17 @@ Route::middleware(['auth'])->group(function () {
         return view('invoices.show', ['invoice' => $invoice->load('lines', 'customer')]);
     })->name('invoices.show');
 
+    // Download invoice PDF
+    Route::get('/invoices/{invoice}/pdf', function (\App\Models\Invoice $invoice) {
+        abort_unless(\Illuminate\Support\Facades\Gate::allows('view', $invoice), 403);
+        $pdfService = app(\App\Domain\Billing\Invoices\Services\InvoicePdfService::class);
+        $pdfContent = $pdfService->handle($invoice);
+        return response($pdfContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $invoice->number . '.pdf"',
+        ]);
+    })->name('invoices.download-pdf');
+
     // Mark a sent invoice as paid
     Route::post('/invoices/{invoice}/mark-paid', function (\App\Models\Invoice $invoice) {
         abort_unless(auth()->user()->organizations->contains($invoice->organization_id), 403);

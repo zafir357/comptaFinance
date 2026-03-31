@@ -3,6 +3,7 @@
 namespace App\Domain\Support\Actions;
 
 use App\Domain\Support\Events\TicketClosed;
+use App\Domain\Support\Repositories\TicketRepository;
 use App\Models\Ticket;
 
 /**
@@ -21,6 +22,10 @@ use App\Models\Ticket;
  */
 class CloseTicketAction
 {
+    public function __construct(
+        private TicketRepository $ticketRepository,
+    ) {}
+
     /**
      * Close a ticket.
      *
@@ -34,8 +39,8 @@ class CloseTicketAction
             throw new \InvalidArgumentException('Ticket is already closed');
         }
 
-        // 2. Update status
-        $ticket->update([
+        // 2. Update status via repository
+        $ticket = $this->ticketRepository->update($ticket, [
             'status' => 'closed',
             'closed_at' => now(),
         ]);

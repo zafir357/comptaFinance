@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-layouts.app>
     <div class="space-y-6">
         {{-- Header --}}
         <div class="flex items-center justify-between">
@@ -89,4 +89,4 @@
             {{ $tickets->links() }}
         </div>
     </div>
-</x-app-layout>
+</x-layouts.app>

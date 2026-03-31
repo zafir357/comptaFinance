@@ -2,6 +2,7 @@
 
 namespace App\Domain\Billing\Invoices\Actions;
 
+use App\Domain\Billing\Invoices\Repositories\InvoiceRepository;
 use App\Models\Invoice;
 
 /**
@@ -11,13 +12,15 @@ use App\Models\Invoice;
  */
 class MarkInvoicePaidAction
 {
+    public function __construct(
+        private InvoiceRepository $invoiceRepository,
+    ) {}
+
     public function handle(Invoice $invoice): Invoice
     {
-        $invoice->update([
+        return $this->invoiceRepository->update($invoice, [
             'status' => 'paid',
             'paid_at' => now(),
         ]);
-
-        return $invoice;
     }
 }

@@ -1,0 +1,8 @@
+name,email,phone,address,city,postal_code,country,siret,vat_number
+SARL Dupont,contact@dupont-sarl.fr,0145678901,12 Rue de la Paix,Paris,75001,France,12345678900012,FR12345678901
+Entreprise Martin,info@martin-entreprise.fr,0234567890,45 Avenue des Champs,Lyon,69001,France,23456789000023,FR23456789012
+SAS Bernard,direction@bernard-sas.fr,0345678901,78 Boulevard Victor Hugo,Marseille,13001,France,34567890000034,FR34567890123
+EURL Thomas,contact@thomas-eurl.fr,0456789012,23 Rue Nationale,Lille,59000,France,45678901000045,FR45678901234
+SA Mercier,info@mercier-sa.fr,0567890123,91 Avenue de la République,Toulouse,31000,France,56789012000056,FR56789012345
+SARL Petit,contact@petit-sarl.fr,0678901234,34 Rue du Commerce,Bordeaux,33000,France,67890123000067,FR67890123456
+Entreprise Rousseau,direction@rousseau-ent.fr,0789012345,67 Place Bellecour,Lyon,69002,France,78901234000078,FR78901234567

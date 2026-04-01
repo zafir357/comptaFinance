@@ -5,8 +5,10 @@ namespace App\Livewire\Tickets;
 use App\Domain\Support\Actions\ReplyToTicketAction;
 use App\Domain\Support\Data\TicketMessageData;
 use App\Models\Ticket;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 
+#[Layout('components.layouts.app')]
 class TicketThread extends Component
 {
     public Ticket $ticket;

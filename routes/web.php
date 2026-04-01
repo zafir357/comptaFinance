@@ -58,11 +58,35 @@ Route::middleware(['auth'])->group(function () {
     // Expenses routes
     Route::get('/expenses', \App\Livewire\Expenses\ExpenseList::class)->name('expenses.index');
     Route::get('/expenses/create', \App\Livewire\Expenses\ExpenseCreate::class)->name('expenses.create');
+    Route::get('/expenses/{expense}', function (\App\Models\Expense $expense) {
+        abort_unless(\Illuminate\Support\Facades\Gate::allows('view', $expense), 403);
+        return view('expenses.show', compact('expense'));
+    })->name('expenses.show');
+    Route::get('/expenses/{expense}/edit', function (\App\Models\Expense $expense) {
+        abort_unless(\Illuminate\Support\Facades\Gate::allows('update', $expense), 403);
+        return view('expenses.edit', compact('expense'));
+    })->name('expenses.edit');
+    Route::delete('/expenses/{expense}', function (\App\Models\Expense $expense) {
+        abort_unless(\Illuminate\Support\Facades\Gate::allows('delete', $expense), 403);
+        if ($expense->receipt_path) {
+            \Storage::disk('receipts')->delete($expense->receipt_path);
+        }
+        $expense->delete();
+        return redirect()->route('expenses.index')->with('message', 'Dépense supprimée.');
+    })->name('expenses.destroy');
+    Route::get('/expenses/{expense}/receipt', function (\App\Models\Expense $expense) {
+        abort_unless(\Illuminate\Support\Facades\Gate::allows('view', $expense), 403);
+        if (!$expense->receipt_path || !\Storage::disk('receipts')->exists($expense->receipt_path)) {
+            abort(404);
+        }
+        return \Storage::disk('receipts')->download($expense->receipt_path);
+    })->name('expenses.download-receipt');
 
     // Banking routes
-    Route::get('/banking', fn() => view('banking.index'))->name('banking.index');
-    Route::get('/banking/import', \App\Livewire\Banking\BankImport::class)->name('banking.import');
-    Route::get('/banking/reconcile', \App\Livewire\Banking\ReconciliationBoard::class)->name('banking.reconcile');
+    Route::get('/banking', \App\Livewire\Banking\ReconciliationBoard::class)->name('banking.index');
+    Route::get('/banking/import', [\App\Http\Controllers\BankImportController::class, 'index'])->name('banking.import');
+    Route::post('/banking/preview', [\App\Http\Controllers\BankImportController::class, 'preview'])->name('banking.preview');
+    Route::post('/banking/import', [\App\Http\Controllers\BankImportController::class, 'import'])->name('banking.import.store');
 
     // Tickets routes
     Route::get('/tickets', \App\Livewire\Tickets\TicketList::class)->name('tickets.index');

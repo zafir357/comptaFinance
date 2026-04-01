@@ -19,6 +19,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \App\Http\Requests\Invoices\OrganizeDay2Files::organize();
     }
 }

@@ -1,0 +1,8 @@
+customer_name,invoice_number,issue_date,due_date,description,quantity,unit_price,vat_rate,status
+SARL Dupont,FAC-2026-001,2026-03-01,2026-03-31,Prestation de conseil mensuel,1,2500.00,20,sent
+Entreprise Martin,FAC-2026-002,2026-03-05,2026-04-04,Développement application web,1,3750.00,20,sent
+SAS Bernard,FAC-2026-003,2026-03-10,2026-04-09,Formation équipe (2 jours),2,945.00,20,sent
+EURL Thomas,FAC-2026-004,2026-03-15,2026-04-14,Maintenance serveurs (Q1 2026),1,4200.00,20,sent
+SA Mercier,FAC-2026-005,2026-03-20,2026-04-19,Support technique mensuel,1,2100.00,20,sent
+SARL Petit,FAC-2026-006,2026-03-25,2026-04-24,Audit sécurité informatique,1,1800.00,20,draft
+Entreprise Rousseau,FAC-2026-007,2026-03-28,2026-04-27,Hébergement cloud mensuel,1,450.00,20,draft

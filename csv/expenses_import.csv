@@ -1,0 +1,11 @@
+date,category,supplier,amount,vat_amount,description
+2026-03-21,meals,Restaurant Le Gourmet,71.25,14.25,Déjeuner client prospect
+2026-03-24,supplies,Bureau Plus,204.83,40.97,Fournitures bureau
+2026-03-27,travel,Station Total,79.17,15.83,Carburant déplacement client
+2026-03-15,travel,SNCF,156.00,31.20,Train Paris-Lyon réunion client
+2026-03-18,meals,Brasserie du Commerce,45.00,9.00,Déjeuner équipe
+2026-03-22,supplies,Amazon Business,98.33,19.67,Matériel informatique
+2026-03-26,utilities,Orange,75.00,15.00,Forfait mobile entreprise
+2026-03-29,other,Librairie Technique,65.00,13.00,Livres formation
+2026-03-16,travel,Europcar,280.00,56.00,Location véhicule 2 jours
+2026-03-23,meals,Café Central,28.33,5.67,Petit-déjeuner réunion

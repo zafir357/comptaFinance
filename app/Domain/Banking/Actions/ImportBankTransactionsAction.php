@@ -4,7 +4,7 @@ namespace App\Domain\Banking\Actions;
 
 use App\Domain\Banking\Data\BankTransactionData;
 use App\Domain\Banking\Repositories\BankTransactionRepository;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 /**
  * ACTION: ImportBankTransactionsAction

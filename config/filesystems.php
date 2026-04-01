@@ -57,6 +57,12 @@ return [
             'throw' => false,
         ],
 
+        'receipts' => [
+            'driver' => 'local',
+            'root' => storage_path('app/receipts'),
+            'visibility' => 'private',
+        ],
+
     ],
 
     /*

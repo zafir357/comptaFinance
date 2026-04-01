@@ -4,9 +4,11 @@ namespace App\Livewire\Banking;
 
 use App\Models\BankTransaction;
 use App\Models\Invoice;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Layout('components.layouts.app')]
 class ReconciliationBoard extends Component
 {
     use WithPagination;

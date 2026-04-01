@@ -1,36 +1,75 @@
-<x-layouts.app>
-    <div class="max-w-3xl mx-auto space-y-6">
-        <div>
-            <h1 class="text-3xl font-bold text-white">Importer transactions bancaires</h1>
-            <p class="mt-2 text-slate-400">Importer un CSV depuis votre banque</p>
+<div class="max-w-3xl mx-auto space-y-6">
+    <div>
+        <h1 class="text-3xl font-bold text-white">Importer transactions bancaires</h1>
+        <p class="mt-2 text-slate-400">Importer un CSV depuis votre banque</p>
+    </div>
+
+    {{-- Error Messages --}}
+    @if (session('error'))
+        <div class="rounded-lg border border-red-600 bg-red-900/30 px-4 py-3 text-red-200">
+            {{ session('error') }}
         </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="rounded-lg border border-red-600 bg-red-900/30 px-4 py-3 text-red-200">
+            <ul class="list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- Loading indicator for file upload --}}
+    <div wire:loading wire:target="csvFile" class="rounded-lg border border-blue-600 bg-blue-900/30 px-4 py-3 text-blue-200">
+        Chargement du fichier...
+    </div>
 
         <flux:card class="bg-slate-900 border border-slate-700">
-            <div class="space-y-6">
+            <form wire:submit="import" class="space-y-6">
                 {{-- File Upload --}}
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-2">
                         Fichier CSV
                     </label>
-                    <flux:input
-                        wire:model="csvFile"
+                    <input
+                        wire:model.live="csvFile"
                         type="file"
                         accept=".csv,.txt"
-                        class="bg-slate-800 border-slate-600 text-white"
+                        class="block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 bg-slate-800 border border-slate-600 rounded-lg cursor-pointer"
                     />
                     <p class="mt-2 text-xs text-slate-500">
                         Format: date,description,amount,external_id
                     </p>
+                    @error('csvFile') <span class="text-xs text-red-400 mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
-                {{-- Preview Button --}}
-                @if ($csvFile && !$showPreview)
-                    <flux:button wire:click="preview" variant="secondary">
-                        Aperçu
+                {{-- Action Buttons --}}
+                <div class="flex gap-3">
+                    <flux:button 
+                        type="button" 
+                        wire:click="preview" 
+                        variant="filled" 
+                        wire:loading.attr="disabled"
+                        wire:target="preview,csvFile"
+                    >
+                        <span wire:loading.remove wire:target="preview">Aperçu</span>
+                        <span wire:loading wire:target="preview">Chargement...</span>
                     </flux:button>
-                @endif
+                    
+                    <flux:button 
+                        type="submit" 
+                        variant="primary" 
+                        wire:loading.attr="disabled"
+                        wire:target="import"
+                    >
+                        <span wire:loading.remove wire:target="import">Importer directement</span>
+                        <span wire:loading wire:target="import">Importation...</span>
+                    </flux:button>
+                </div>
 
-                {{-- Preview Modal --}}
+                {{-- Preview Table --}}
                 @if ($showPreview && !empty($preview))
                     <div class="rounded-lg border-2 border-blue-700 bg-blue-900/30 p-4 backdrop-blur">
                         <h3 class="font-semibold text-white mb-3">Aperçu (premiers enregistrements)</h3>
@@ -58,29 +97,9 @@
                                 </flux:table.rows>
                             </flux:table>
                         </div>
-
-                        <div class="mt-4 flex gap-2">
-                            <flux:button
-                                wire:click="import"
-                                wire:loading.attr="disabled"
-                                variant="primary"
-                            >
-                                @if ($importing)
-                                    Importation en cours...
-                                @else
-                                    Importer
-                                @endif
-                            </flux:button>
-                            <flux:button
-                                wire:click="$set('showPreview', false)"
-                                variant="secondary"
-                            >
-                                Annuler
-                            </flux:button>
-                        </div>
                     </div>
                 @endif
-            </div>
+            </form>
         </flux:card>
 
         {{-- Help Section --}}
@@ -97,5 +116,16 @@
                 • L'external_id doit être unique (utilisé pour idempotence)
             </p>
         </flux:card>
+        
+        {{-- CLI Alternative --}}
+        <flux:card class="bg-slate-900 border border-slate-700">
+            <h3 class="font-semibold text-white mb-3">Alternative: Import via CLI</h3>
+            <div class="bg-slate-800 p-3 rounded text-sm font-mono text-slate-300 overflow-x-auto border border-slate-600">
+                php artisan banking:import csv/bank_transactions.csv
+            </div>
+            <p class="mt-3 text-sm text-slate-400">
+                Exécutez cette commande depuis le terminal pour importer directement.
+            </p>
+        </flux:card>
     </div>
-</x-layouts.app>
+</div>

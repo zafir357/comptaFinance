@@ -4,9 +4,11 @@ namespace App\Livewire\Banking;
 
 use App\Domain\Banking\Actions\ImportBankTransactionsAction;
 use App\Domain\Banking\Services\BankTransactionCsvParser;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
+#[Layout('components.layouts.app')]
 class BankImport extends Component
 {
     use WithFileUploads;
@@ -22,6 +24,11 @@ class BankImport extends Component
             'csvFile' => 'required|file|mimes:csv,txt',
         ]);
 
+        if (!$this->csvFile) {
+            $this->addError('csvFile', 'Veuillez sélectionner un fichier CSV');
+            return;
+        }
+
         $content = file_get_contents($this->csvFile->getRealPath());
 
         try {
@@ -29,14 +36,14 @@ class BankImport extends Component
             $this->preview = array_slice($transactions, 0, 5); // Show first 5
             $this->showPreview = true;
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors du parsing: ' . $e->getMessage());
+            $this->addError('csvFile', 'Erreur lors du parsing: ' . $e->getMessage());
         }
     }
 
     public function import()
     {
         if (!$this->csvFile) {
-            session()->flash('error', 'Sélectionner un fichier CSV');
+            $this->addError('csvFile', 'Sélectionner un fichier CSV');
             return;
         }
 
@@ -55,7 +62,7 @@ class BankImport extends Component
 
             return redirect()->route('banking.index');
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur: ' . $e->getMessage());
+            $this->addError('csvFile', 'Erreur: ' . $e->getMessage());
         } finally {
             $this->importing = false;
         }

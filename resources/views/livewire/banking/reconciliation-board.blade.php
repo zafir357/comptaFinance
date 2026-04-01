@@ -1,27 +1,35 @@
-<x-layouts.app>
-    <div class="space-y-6">
-        {{-- Header --}}
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold text-white">Rapprochement bancaire</h1>
-                <p class="mt-2 text-sm text-slate-400">Associer transactions bancaires et factures/dépenses</p>
-            </div>
-            <a href="{{ route('banking.import') }}" class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Importer CSV
-            </a>
+<div class="space-y-6">
+    {{-- Header --}}
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-white">Rapprochement bancaire</h1>
+            <p class="mt-2 text-sm text-slate-400">Associer transactions bancaires et factures/dépenses</p>
         </div>
+        <a href="{{ route('banking.import') }}" class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Importer CSV
+        </a>
+    </div>
 
-        {{-- Tabs --}}
-        <flux:tabs
-            wire:model="tab"
-            variant="segmented"
-        >
-            <flux:tab name="unreconciled" label="À rapprocher" />
-            <flux:tab name="reconciled" label="Rapprochées" />
-        </flux:tabs>
+    {{-- Tabs --}}
+    <div class="border-b border-slate-700">
+        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <button 
+                wire:click="$set('tab', 'unreconciled')"
+                class="@if($tab === 'unreconciled') border-blue-500 text-blue-400 @else border-transparent text-slate-400 hover:border-slate-500 hover:text-slate-300 @endif whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition"
+            >
+                À rapprocher
+            </button>
+            <button 
+                wire:click="$set('tab', 'reconciled')"
+                class="@if($tab === 'reconciled') border-blue-500 text-blue-400 @else border-transparent text-slate-400 hover:border-slate-500 hover:text-slate-300 @endif whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition"
+            >
+                Rapprochées
+            </button>
+        </nav>
+    </div>
 
         {{-- Search --}}
         <flux:input
@@ -87,7 +95,7 @@
                                 </flux:button>
                                 <flux:button
                                     wire:click="resetSelection"
-                                    variant="secondary"
+                                    variant="ghost"
                                     size="sm"
                                 >
                                     Annuler
@@ -98,7 +106,7 @@
                         <div class="mt-4 pt-2">
                             <flux:button
                                 wire:click="$set('selectedTransactionId', {{ $transaction->id }})"
-                                variant="secondary"
+                                variant="filled"
                                 size="sm"
                             >
                                 Rapprocher
@@ -124,4 +132,4 @@
             {{ $transactions->links() }}
         </div>
     </div>
-</x-layouts.app>
+</div>

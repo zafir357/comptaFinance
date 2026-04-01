@@ -14,25 +14,48 @@ class ReconciliationBoard extends Component
     use WithPagination;
 
     public string $search = '';
-    public string $tab = 'unreconciled'; // 'unreconciled' or 'reconciled'
-    public ?int $selectedTransactionId = null;
+    public string $tab = 'unreconciled';
     public ?int $selectedInvoiceId = null;
+    public ?int $selectedTransactionId = null;
+    public bool $showReconcileModal = false;
 
     public function updatingSearch()
     {
         $this->resetPage();
     }
 
+    public function selectTransaction(int $transactionId)
+    {
+        $this->selectedTransactionId = $transactionId;
+        $this->selectedInvoiceId = null;
+        $this->resetErrorBag('selectedInvoiceId');
+        $this->showReconcileModal = true;
+    }
+
+    public function resetReconciliation(): void
+    {
+        $this->selectedTransactionId = null;
+        $this->selectedInvoiceId = null;
+        $this->resetErrorBag('selectedInvoiceId');
+        $this->showReconcileModal = false;
+    }
+
     public function reconcile()
     {
-        if (!$this->selectedTransactionId || !$this->selectedInvoiceId) {
+        if (!$this->selectedInvoiceId) {
+            $this->addError('selectedInvoiceId', 'Sélectionner une facture');
+            return;
+        }
+
+        if (!$this->selectedTransactionId) {
             return;
         }
 
         $transaction = BankTransaction::findOrFail($this->selectedTransactionId);
         $invoice = Invoice::findOrFail($this->selectedInvoiceId);
 
-        $transaction->reconciliations()->create([
+        // Create reconciliation using the correct singular relationship
+        $transaction->reconciliation()->create([
             'reconcilable_type' => Invoice::class,
             'reconcilable_id' => $invoice->id,
             'amount' => $transaction->amount,
@@ -40,14 +63,9 @@ class ReconciliationBoard extends Component
 
         $transaction->update(['reconciled' => true]);
 
-        session()->flash('success', 'Transaction rapprochée avec succès!');
-        $this->resetSelection();
-    }
+        $this->resetReconciliation();
 
-    public function resetSelection()
-    {
-        $this->selectedTransactionId = null;
-        $this->selectedInvoiceId = null;
+        session()->flash('success', 'Transaction rapprochée avec succès!');
     }
 
     public function render()
@@ -65,10 +83,15 @@ class ReconciliationBoard extends Component
         }
 
         $transactions = $query->latest()->paginate(10);
+        
+        $selectedTransaction = $this->selectedTransactionId 
+            ? BankTransaction::find($this->selectedTransactionId) 
+            : null;
 
         return view('livewire.banking.reconciliation-board', [
             'transactions' => $transactions,
             'invoices' => Invoice::where('status', '!=', 'paid')->get(),
+            'selectedTransaction' => $selectedTransaction,
         ]);
     }
 }

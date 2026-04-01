@@ -8,6 +8,7 @@
     <title>{{ config('app.name', 'ComptaFinance') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
     @fluxAppearance
 </head>
 <body class="min-h-screen bg-slate-950 antialiased">
@@ -35,6 +36,7 @@
         </x-layouts.app.sidebar>
     </div>
 
+    @livewireScripts
     @fluxScripts
 </body>
 </html>

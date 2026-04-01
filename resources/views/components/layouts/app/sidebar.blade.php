@@ -85,6 +85,5 @@
         {{-- Main content area (passed from layouts/app.blade.php) --}}
         {{ $slot }}
 
-        @fluxScripts
     </body>
 </html>

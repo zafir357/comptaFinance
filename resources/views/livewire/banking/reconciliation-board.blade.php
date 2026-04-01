@@ -124,14 +124,26 @@
                 </div>
 
                 {{-- Invoice Selection --}}
-                <flux:select wire:model="selectedInvoiceId" label="Facture" placeholder="Sélectionner une facture...">
+                <flux:select wire:model="selectedInvoiceId" label="Facture (négative)" placeholder="Sélectionner une facture négative...">
                     @foreach ($invoices as $invoice)
                         <flux:select.option value="{{ $invoice->id }}">
-                            {{ $invoice->number }} - {{ $invoice->customer->name ?? 'N/A' }} ({{ number_format($invoice->total / 100, 2, ',', ' ') }} €)
+                            {{ $invoice->number }} - {{ $invoice->customer->name ?? 'N/A' }} ({{ number_format($invoice->total / 100, 2, ',', ' ') }} €) | Restant: {{ number_format($invoice->remaining_amount / 100, 2, ',', ' ') }} €
                         </flux:select.option>
                     @endforeach
                 </flux:select>
                 @error('selectedInvoiceId') 
+                    <p class="text-red-400 text-sm">{{ $message }}</p>
+                @enderror
+
+                {{-- Applied Amount --}}
+                <flux:input
+                    wire:model="appliedAmount"
+                    type="number"
+                    step="0.01"
+                    label="Montant appliqué (€/négatif)"
+                    placeholder="-100,00"
+                />
+                @error('appliedAmount') 
                     <p class="text-red-400 text-sm">{{ $message }}</p>
                 @enderror
             @else

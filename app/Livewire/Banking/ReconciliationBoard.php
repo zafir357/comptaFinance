@@ -4,6 +4,8 @@ namespace App\Livewire\Banking;
 
 use App\Models\BankTransaction;
 use App\Models\Invoice;
+use App\Domain\Banking\Data\PartialReconciliationData;
+use App\Domain\Banking\Actions\ApplyPartialReconciliationAction;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -18,6 +20,7 @@ class ReconciliationBoard extends Component
     public ?int $selectedInvoiceId = null;
     public ?int $selectedTransactionId = null;
     public bool $showReconcileModal = false;
+    public ?string $appliedAmount = null; // euros as string
 
     public function updatingSearch()
     {
@@ -28,6 +31,7 @@ class ReconciliationBoard extends Component
     {
         $this->selectedTransactionId = $transactionId;
         $this->selectedInvoiceId = null;
+        $this->appliedAmount = null;
         $this->resetErrorBag('selectedInvoiceId');
         $this->showReconcileModal = true;
     }
@@ -36,8 +40,33 @@ class ReconciliationBoard extends Component
     {
         $this->selectedTransactionId = null;
         $this->selectedInvoiceId = null;
+        $this->appliedAmount = null;
         $this->resetErrorBag('selectedInvoiceId');
         $this->showReconcileModal = false;
+    }
+
+    public function updatedSelectedInvoiceId($value): void
+    {
+        if (!$this->selectedTransactionId || !$this->selectedInvoiceId) {
+            return;
+        }
+
+        [$txRemaining, $invRemaining] = $this->remainingBalances();
+        $default = -min(abs($txRemaining), abs($invRemaining));
+        $this->appliedAmount = number_format($default / 100, 2, '.', '');
+    }
+
+    private function remainingBalances(): array
+    {
+        $tx = BankTransaction::withSum('invoices as applied_sum', 'bank_transaction_invoice.applied_amount')
+            ->findOrFail($this->selectedTransactionId);
+        $invoice = Invoice::withSum('bankTransactions as applied_sum', 'bank_transaction_invoice.applied_amount')
+            ->findOrFail($this->selectedInvoiceId);
+
+        $txRemaining = $tx->amount - ($tx->applied_sum ?? 0);
+        $invRemaining = $invoice->total - ($invoice->applied_sum ?? 0);
+
+        return [$txRemaining, $invRemaining];
     }
 
     public function reconcile()
@@ -51,17 +80,29 @@ class ReconciliationBoard extends Component
             return;
         }
 
-        $transaction = BankTransaction::findOrFail($this->selectedTransactionId);
-        $invoice = Invoice::findOrFail($this->selectedInvoiceId);
+        $amountEuros = $this->appliedAmount ?? '0';
+        $amountCents = (int) round((float) $amountEuros * 100);
 
-        // Create reconciliation using the correct singular relationship
-        $transaction->reconciliation()->create([
-            'reconcilable_type' => Invoice::class,
-            'reconcilable_id' => $invoice->id,
-            'amount' => $transaction->amount,
-        ]);
+        [$txRemaining, $invRemaining] = $this->remainingBalances();
 
-        $transaction->update(['reconciled' => true]);
+        if ($amountCents >= 0) {
+            $this->addError('appliedAmount', 'Le montant doit être négatif.');
+            return;
+        }
+
+        $maxApplicable = min(abs($txRemaining), abs($invRemaining));
+        if (abs($amountCents) > $maxApplicable) {
+            $this->addError('appliedAmount', 'Montant dépasse le restant disponible.');
+            return;
+        }
+
+        /** @var ApplyPartialReconciliationAction $action */
+        $action = app(ApplyPartialReconciliationAction::class);
+        $action->handle(new PartialReconciliationData(
+            bankTransactionId: $this->selectedTransactionId,
+            invoiceId: $this->selectedInvoiceId,
+            appliedAmount: $amountCents,
+        ));
 
         $this->resetReconciliation();
 
@@ -90,7 +131,7 @@ class ReconciliationBoard extends Component
 
         return view('livewire.banking.reconciliation-board', [
             'transactions' => $transactions,
-            'invoices' => Invoice::where('status', '!=', 'paid')->get(),
+            'invoices' => Invoice::where('total', '<', 0)->get(),
             'selectedTransaction' => $selectedTransaction,
         ]);
     }

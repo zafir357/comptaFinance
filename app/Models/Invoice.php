@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Support\Traits\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
@@ -66,6 +67,13 @@ class Invoice extends Model
         return $this->morphMany(Reconciliation::class, 'reconcilable');
     }
 
+    public function bankTransactions(): BelongsToMany
+    {
+        return $this->belongsToMany(BankTransaction::class, 'bank_transaction_invoice')
+            ->withPivot('applied_amount')
+            ->withTimestamps();
+    }
+
     // ACCESSOR: Convertir centimes → euros pour affichage
     // Usage: $invoice->total_in_euros → "19.99"
     public function getTotalInEurosAttribute(): string
@@ -104,7 +112,8 @@ class Invoice extends Model
     // HELPER: Montant restant à rapprocher
     public function getRemainingAmountAttribute(): int
     {
-        return $this->total - $this->reconciled_amount;
+        $applied = $this->bankTransactions()->sum('bank_transaction_invoice.applied_amount');
+        return $this->total - $applied;
     }
 
     // HELPER: Check si facture est en retard

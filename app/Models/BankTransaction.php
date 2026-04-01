@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Support\Traits\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -39,6 +40,13 @@ class BankTransaction extends Model
         return $this->hasOne(Reconciliation::class);
     }
 
+    public function invoices(): BelongsToMany
+    {
+        return $this->belongsToMany(Invoice::class, 'bank_transaction_invoice')
+            ->withPivot('applied_amount')
+            ->withTimestamps();
+    }
+
     // SCOPE: Seulement les transactions non rapprochées
     // Usage: BankTransaction::unreconciled()->get()
     public function scopeUnreconciled($query)
@@ -63,5 +71,10 @@ class BankTransaction extends Model
     {
         return $this->amount < 0;
     }
-}
 
+    public function remainingAmount(): int
+    {
+        $applied = $this->invoices()->sum('bank_transaction_invoice.applied_amount');
+        return $this->amount - $applied;
+    }
+}

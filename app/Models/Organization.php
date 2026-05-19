@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 /**
  * MODEL: Organization (cabinet comptable)
@@ -23,6 +24,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Organization extends Model
 {
     protected $guarded = [];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::creating(function ($org) {
+            if (empty($org->slug)) {
+                $org->slug = Str::slug($org->name);
+            }
+        });
+    }
     
     protected $casts = [
         'settings' => 'array',  // JSON → array PHP automatiquement

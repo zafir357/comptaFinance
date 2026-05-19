@@ -10,16 +10,20 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class Dashboard extends Component
 {
+    public function mount(): void
+    {
+        if (! app(CurrentOrganization::class)->isSet()) {
+            $this->redirect(route('home'));
+        }
+    }
+
     public function render()
     {
         $tenancy = app(CurrentOrganization::class);
 
-        // Guard: no org in session (e.g. fresh login with no memberships)
-        if (! $tenancy->isSet()) {
-            return redirect()->route('home');
-        }
-
-        $stats = app(DashboardStatsService::class)->getStats();
+        $stats = $tenancy->isSet()
+            ? app(DashboardStatsService::class)->getStats()
+            : [];
 
         return view('livewire.dashboard', [
             'stats' => $stats,

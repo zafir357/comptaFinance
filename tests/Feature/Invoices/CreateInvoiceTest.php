@@ -30,7 +30,7 @@ class CreateInvoiceTest extends TestCase
             'email' => 'test@test.com',
             'password' => 'password',
         ]);
-        $org->members()->attach($user, ['role' => 'owner']);
+        $org->users()->attach($user, ['role' => 'owner']);
 
         // Set organization context
         app(CurrentOrganization::class)->set($org);
@@ -50,15 +50,15 @@ class CreateInvoiceTest extends TestCase
             lines: [
                 new \App\Domain\Billing\Invoices\Data\InvoiceLineData(
                     description: 'Service 1',
-                    quantity: 100,  // 1.00
-                    unit_price: 10000, // 100.00
-                    vat_rate: 2000  // 20%
+                    quantity: 1,
+                    unit_price: 10000, // 100.00€ in cents
+                    vat_rate: 2000     // 20% in basis points
                 ),
                 new \App\Domain\Billing\Invoices\Data\InvoiceLineData(
                     description: 'Service 2',
-                    quantity: 200,  // 2.00
-                    unit_price: 5000, // 50.00
-                    vat_rate: 2000  // 20%
+                    quantity: 2,
+                    unit_price: 5000,  // 50.00€ in cents
+                    vat_rate: 2000     // 20% in basis points
                 ),
             ],
             notes: 'Test invoice',

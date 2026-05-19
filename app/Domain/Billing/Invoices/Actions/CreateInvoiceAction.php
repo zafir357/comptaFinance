@@ -62,7 +62,7 @@ class CreateInvoiceAction
                 'description' => $lineData->description,
                 'quantity' => $lineData->quantity,
                 'unit_price' => $lineData->unit_price,
-                'vat_rate' => $lineData->vat_rate,
+                'vat_rate' => $lineData->vat_rate / 100.0, // basis-points → percentage (2000 → 20.00)
                 'total' => $lineTotal + $vat,
             ]);
         }

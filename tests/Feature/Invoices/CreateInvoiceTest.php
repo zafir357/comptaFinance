@@ -15,12 +15,6 @@ class CreateInvoiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->createApplication();
-    }
-
     public function test_can_create_invoice_with_lines_and_correct_totals()
     {
         // Create org and user
